@@ -56,7 +56,22 @@ export async function getRecommendation(locationId: string): Promise<{ recommend
 
 // POST /chat
 export async function sendChatMessage(message: string): Promise<string> {
-  await delay(1200);
+  try {
+    const res = await fetch("http://localhost:8000/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.response) return data.response;
+    }
+  } catch (err) {
+    console.warn("Backend chat endpoint failed, falling back to mock response", err);
+  }
+
+  // Fallback to intelligent mock response if backend fails
+  await delay(1000);
   const lower = message.toLowerCase();
   if (lower.includes("why") || lower.includes("increase")) return mockChatResponses["why"];
   if (lower.includes("which") || lower.includes("inspection")) return mockChatResponses["which"];
@@ -64,6 +79,7 @@ export async function sendChatMessage(message: string): Promise<string> {
   if (lower.includes("how") || lower.includes("reduce") || lower.includes("authorities")) return mockChatResponses["how"];
   return mockChatResponses["default"];
 }
+
 
 // ===== Real-Time AI Agent APIs =====
 

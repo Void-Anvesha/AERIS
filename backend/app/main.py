@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.health import router as health_router
 from app.api.routes.insights import router as insights_router
-from app.api import decision, advisory
+from app.api import decision, advisory, chat
 from app.core.config import settings
 from app.core.exceptions import AERISException
 from app.core.logging import logger
@@ -32,3 +32,5 @@ app.include_router(health_router, prefix="/api")
 app.include_router(insights_router, prefix="/api")
 app.include_router(decision.router)
 app.include_router(advisory.router)
+app.include_router(chat.router)
+
