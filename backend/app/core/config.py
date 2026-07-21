@@ -59,6 +59,12 @@ class Settings(BaseSettings):
     @property
     def LOG_LEVEL(self) -> str:
         return self.log_level
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+    def __init__(self, **values: str) -> None:
+        super().__init__(**values)
+        if self.database_url.startswith("postgres://"):
+            self.database_url = self.database_url.replace("postgres://", "postgresql://", 1)
 
 
 settings = Settings()
