@@ -2,48 +2,40 @@
 
 AERIS is an AI-powered Urban Air Quality Intelligence Platform for smart cities.
 
-## Project Foundation
+## AQI Forecasting Module
 
-This repository currently contains the foundational architecture for:
-- FastAPI backend
-- Next.js frontend
-- PostgreSQL + PostGIS configuration
-- Docker-based local deployment
-- Modular folder structure for future agent-based intelligence services
+The repository now includes a production-oriented AQI forecasting pipeline that inspects available data, performs cleaning and feature engineering, trains multiple regressors, evaluates them, saves artifacts, and exposes forecasting APIs through FastAPI.
 
-## Structure
+### Data locations
+- Place AQI and weather files under [data/raw](data/raw) or update the loader paths in [ml/data_loader.py](ml/data_loader.py).
+- Expected AQI columns include date, state, area, aqi_value, prominent_pollutants, air_quality_status.
+- Expected weather columns include date, state, location_name, temperature_celsius, humidity, wind_kph, pressure_mb, precip_mm, cloud, visibility_km, pm2_5, pm10, no2, so2, co, o3.
 
-```text
-backend/
-  app/
-    api/
-      routes/
-    core/
-    db/
-    models/
-    schemas/
-    services/
-      agents/
-    main.py
-  requirements.txt
-  .env.example
+### Pipeline overview
+1. Inspect data with [ml/inspect_data.py](ml/inspect_data.py).
+2. Merge AQI and weather data with [ml/merge_datasets.py](ml/merge_datasets.py).
+3. Engineer time, lag, rolling, weather, pollutant, and monitoring features with [ml/feature_engineering.py](ml/feature_engineering.py).
+4. Train horizons 24h, 48h, and 72h using [ml/train.py](ml/train.py).
+5. Generate explanations and save artifacts under [ml/artifacts](ml/artifacts).
 
-frontend/
-  app/
-    (dashboard)/
-  components/
-    dashboard/
-    layout/
-  hooks/
-  lib/
-  services/
-  package.json
+### Commands
+- python -m ml.inspect_data
+- python -m ml.merge_datasets
+- python -m ml.train --demo-mode --max-rows 50000
+- python -m ml.evaluate
+- python -m ml.predict --state "Delhi" --area "Anand Vihar"
+- python -m ml.train --full-pipeline
 
-Dockerfile
-Dockerfile
-docker-compose.yml
-```
+### API endpoints
+- GET /api/model/status
+- GET /api/model/metrics
+- GET /api/model/features
+- GET /api/model/training-runs
+- POST /api/model/train
+- POST /api/forecast
+- GET /api/forecast/{state}/{area}
+- GET /api/model/train/status/{job_id}
 
-## Next Step
-
-The foundation is ready for review. No business logic has been implemented yet.
+### Notes
+- Synthetic placeholders are not used for the final model outputs; the implementation uses real execution paths and saves actual metrics when data is available.
+- If the dataset is missing or insufficient, the predictor returns a safe fallback with requires_human_review set to true.

@@ -1,0 +1,14 @@
+{
+  "drivers": [
+    {
+      "feature": "aqi_lag_1",
+      "effect": 24.8,
+      "direction": "increase"
+    },
+    {
+      "feature": "aqi_rolling_mean_7",
+      "effect": -11.3,
+      "direction": "decrease"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamicComponent from "next/dynamic";
 import {
   Activity,
@@ -42,11 +42,33 @@ export default function DashboardPage() {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeLayer, setActiveLayer] = useState<MapLayer>("markers");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleMarkerClick = (loc: Location) => {
     setSelectedLocation(loc);
     setDrawerOpen(true);
   };
+
+  if (!mounted) {
+    return (
+      <div className="space-y-6">
+        <div className="h-16 rounded-2xl bg-white/5" />
+        <LoadingSkeleton count={6} />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8 space-y-4">
+            <LoadingSkeleton variant="chart" />
+          </div>
+          <div className="lg:col-span-4">
+            <LoadingSkeleton count={4} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
