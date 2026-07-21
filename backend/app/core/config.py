@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -15,6 +16,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://aeris_user:aeris_password@localhost:5432/aeris_db"
     postgis_enabled: bool = True
     log_level: str = "INFO"
+    google_maps_api_key: Optional[str] = ""
 
     # --- Groq / LLM configuration ------------------------------------------
     groq_api_key: str = Field(default="", alias="GROQ_API_KEY", description="Groq API key")
@@ -59,7 +61,6 @@ class Settings(BaseSettings):
     @property
     def LOG_LEVEL(self) -> str:
         return self.log_level
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     def __init__(self, **values: str) -> None:
         super().__init__(**values)

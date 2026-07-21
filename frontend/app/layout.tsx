@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import Shell from "@/components/layout/Shell";
@@ -21,6 +22,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+  const googleMapsUrl = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+
   return (
     <html lang="en" className={`${inter.variable} dark`}>
       <head>
@@ -29,6 +33,12 @@ export default function RootLayout({
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           crossOrigin=""
         />
+        {apiKey && (
+          <Script
+            src={googleMapsUrl}
+            strategy="beforeInteractive"
+          />
+        )}
       </head>
       <body className="font-sans antialiased selection:bg-cyan-500/30 selection:text-cyan-200" style={{ background: "#0F172A" }}>
         <Providers>
@@ -38,3 +48,4 @@ export default function RootLayout({
     </html>
   );
 }
+
