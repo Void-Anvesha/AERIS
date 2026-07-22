@@ -52,17 +52,19 @@ class DecisionWorkflow:
         logger.debug("Running decision step for zone=%s", insight.zone_name)
         return self._decision_agent.evaluate(insight)
 
-    async def run_advisory(self, decision: DecisionOutput) -> AdvisoryResponse:
+    async def run_advisory(self, decision: DecisionOutput, language: str = "English") -> AdvisoryResponse:
         """Run Agent 2 only: decision -> advisory (authority + citizen).
 
         Args:
             decision: A previously computed `DecisionOutput`.
+            language: Language for citizen advisory.
 
         Returns:
             The generated `AdvisoryResponse`.
         """
         logger.debug("Running advisory step for priority=%s", decision.priority.value)
-        return await self._advisory_agent.generate_advisory(decision)
+        return await self._advisory_agent.generate_advisory(decision, language=language)
+
 
     async def run_full_pipeline(self, insight: InsightInput) -> tuple[DecisionOutput, AdvisoryResponse]:
         """Run the complete pipeline: raw insight -> decision -> advisory.

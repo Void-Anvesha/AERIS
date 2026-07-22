@@ -117,7 +117,7 @@ export interface AdvisoryResponse {
 }
 
 export async function runDecision(insight: InsightInput): Promise<DecisionOutput> {
-  const res = await fetch("http://localhost:8000/decision", {
+  const res = await fetch("http://localhost:8000/api/agents/decision", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(insight),
@@ -127,7 +127,7 @@ export async function runDecision(insight: InsightInput): Promise<DecisionOutput
 }
 
 export async function runAdvisory(decision: DecisionOutput): Promise<AdvisoryResponse> {
-  const res = await fetch("http://localhost:8000/advisory", {
+  const res = await fetch("http://localhost:8000/api/agents/advisory", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(decision),

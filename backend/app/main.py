@@ -39,7 +39,7 @@ async def aeris_exception_handler(request, exc: AERISException):
 
 app.include_router(health_router, prefix="/api")
 app.include_router(insights_router, prefix="/api")
-app.include_router(agents_router, prefix="/api")
+app.include_router(agents_router)
 app.include_router(forecast_router)
 app.include_router(decision.router)
 app.include_router(advisory.router)

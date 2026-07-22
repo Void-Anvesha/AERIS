@@ -41,12 +41,14 @@ def get_decision_workflow() -> DecisionWorkflow:
 )
 async def create_advisory(
     decision: DecisionOutput,
+    language: str = "English",
     workflow: DecisionWorkflow = Depends(get_decision_workflow),
 ) -> AdvisoryResponse:
     """Generate authority + citizen advisories for a given decision.
 
     Args:
         decision: The decision payload (output of `POST /decision`).
+        language: Optional language target for citizen advisory.
         workflow: Injected orchestration workflow.
 
     Returns:
@@ -57,7 +59,23 @@ async def create_advisory(
             500 for any other unexpected failure.
     """
     try:
-        return await workflow.run_advisory(decision)
+        # Wrap execution in Parent Guardrails
+        from app.services.guardrails import ParentGuardrails
+        
+        async def _run():
+            return await workflow._advisory_agent.generate_advisory(decision, language=language)
+
+        result_model = await _run()
+        result_dict = result_model.model_dump()
+        
+        # Apply output guardrail checks
+        final_result = ParentGuardrails.run_safe(
+            agent_name="Agent 8 - LLM Advisory Agent",
+            agent_fn=lambda: result_dict,
+            confidence_threshold=0.70
+        )
+        return AdvisoryResponse(**final_result)
+        
     except LLMAdvisoryAgentError as exc:
         logger.error("LLM Advisory Agent failed: %s", exc)
         raise HTTPException(

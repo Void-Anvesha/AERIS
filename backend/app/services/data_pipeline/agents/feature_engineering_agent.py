@@ -16,10 +16,15 @@ class FeatureEngineeringAgent:
 
     def _ensure_numerics(self, df: pd.DataFrame) -> pd.DataFrame:
         for column in ["aqi", "temperature", "humidity", "traffic_index", "industrial_score", "green_cover"]:
-            df[column] = pd.to_numeric(df.get(column, 0), errors="coerce").fillna(0.0)
+            if column in df.columns:
+                df[column] = pd.to_numeric(df[column], errors="coerce").fillna(0.0)
+            else:
+                df[column] = 0.0
         return df
 
+
     def _add_temporal_features(self, df: pd.DataFrame) -> pd.DataFrame:
+        df["date"] = pd.to_datetime(df["date"], errors="coerce")
         df = df.sort_values(["city", "date"]).reset_index(drop=True)
         df["season"] = df["date"].dt.month.map(self._season_for_month)
         df["weekend"] = df["date"].dt.dayofweek.isin([5, 6]).astype(int)
@@ -28,9 +33,11 @@ class FeatureEngineeringAgent:
         return df
 
     def _add_context_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        df["traffic_index"] = df.get("traffic_index", 0.0).fillna(0.0)
-        df["industrial_score"] = df.get("industrial_score", 0.0).fillna(0.0)
-        df["green_cover"] = df.get("green_cover", 0.0).fillna(0.0)
+        for col in ["traffic_index", "industrial_score", "green_cover"]:
+            if col not in df.columns:
+                df[col] = 0.0
+            else:
+                df[col] = df[col].fillna(0.0)
         return df
 
     def _add_health_risk(self, df: pd.DataFrame) -> pd.DataFrame:

@@ -15,6 +15,8 @@ class AdvisoryResponse(BaseModel):
 
     authority_advisory: str = Field(..., description="Actionable guidance for the responsible authority")
     citizen_advisory: str = Field(..., description="Public-facing citizen safety advisory")
+    sms_advisory: str | None = Field(None, description="URGENT SMS alert content under 160 characters")
+    email_advisory: str | None = Field(None, description="HTML formatted community advisory email draft")
 
     model_config = {
         "json_schema_extra": {
@@ -30,6 +32,8 @@ class AdvisoryResponse(BaseModel):
                     "avoid outdoor exercise, and keep children and elderly indoors. "
                     "Schools should suspend outdoor sports until conditions improve."
                 ),
+                "sms_advisory": "ALERT: AQI in Ward 14 is Critical (310). Wear N95 masks. Suspend outdoor sports.",
+                "email_advisory": "<h3>Community Advisory</h3><p>Air Quality index has reached critical levels...</p>"
             }
         }
     }

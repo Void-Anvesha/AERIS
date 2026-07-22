@@ -30,6 +30,18 @@ CITIZEN_SYSTEM_PROMPT = (
     "greetings, or explanations - only the advisory list."
 )
 
+SMS_SYSTEM_PROMPT = (
+    "You are AERIS, a public alert service sending urgent SMS updates. "
+    "Write a short, impactful SMS under 160 characters. Do not include greetings "
+    "or intros - start directly with the warning. Include AQI level and mask/outdoor guidance."
+)
+
+EMAIL_SYSTEM_PROMPT = (
+    "You are AERIS, an automated air quality notifications assistant. "
+    "Draft a professional HTML email notification to the community summarizing the "
+    "air quality situation, health implications, and recommended steps. Include a subject line."
+)
+
 
 def _build_context_block(decision: DecisionOutput) -> str:
     """Render the shared factual context block used by both prompt types.
@@ -54,14 +66,7 @@ def _build_context_block(decision: DecisionOutput) -> str:
 
 
 def build_authority_prompt(decision: DecisionOutput) -> str:
-    """Build the user prompt requesting authority-facing recommendations.
-
-    Args:
-        decision: The structured output of the Decision Intelligence Agent.
-
-    Returns:
-        A fully-formed user prompt string ready to send to the LLM.
-    """
+    """Build the user prompt requesting authority-facing recommendations."""
     context = _build_context_block(decision)
     return (
         "Given the following air-quality decision context, generate a numbered "
@@ -74,21 +79,31 @@ def build_authority_prompt(decision: DecisionOutput) -> str:
     )
 
 
-def build_citizen_prompt(decision: DecisionOutput) -> str:
-    """Build the user prompt requesting a citizen-facing advisory.
-
-    Args:
-        decision: The structured output of the Decision Intelligence Agent.
-
-    Returns:
-        A fully-formed user prompt string ready to send to the LLM.
-    """
+def build_citizen_prompt(decision: DecisionOutput, language: str = "English") -> str:
+    """Build the user prompt requesting a citizen-facing advisory, with language support."""
     context = _build_context_block(decision)
     return (
-        "Given the following air-quality decision context, generate a numbered "
-        "list of clear, practical precautions for the general public, "
-        "including specific guidance for sensitive groups such as children, "
-        "the elderly, and people with respiratory conditions where relevant.\n\n"
+        f"Given the following air-quality decision context, generate a numbered "
+        f"list of clear, practical precautions for the general public in {language}. "
+        f"Include specific guidance for sensitive groups such as children, "
+        f"the elderly, and people with respiratory conditions where relevant.\n\n"
         f"{context}\n\n"
-        "Respond with only the numbered advisory list."
+        f"Respond with only the numbered advisory list in {language}."
+    )
+
+
+def build_sms_prompt(decision: DecisionOutput) -> str:
+    """Build user prompt for SMS alerts."""
+    return (
+        f"Construct an emergency SMS warning for a public alert. AQI is {decision.aqi} "
+        f"({decision.priority.value}). Source: {decision.source}. Area: {decision.zone_name or 'Affected Area'}."
+    )
+
+
+def build_email_prompt(decision: DecisionOutput) -> str:
+    """Build user prompt for Email notifications."""
+    context = _build_context_block(decision)
+    return (
+        f"Construct a comprehensive email report to notify neighborhood residents of critical air conditions.\n\n"
+        f"{context}"
     )

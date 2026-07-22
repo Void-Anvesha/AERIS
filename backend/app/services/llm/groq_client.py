@@ -42,8 +42,12 @@ class GroqClient:
         self._temperature = settings.GROQ_TEMPERATURE
         self._max_tokens = settings.GROQ_MAX_TOKENS
 
+        api_key_val = api_key or settings.GROQ_API_KEY
+        if not api_key_val:
+            api_key_val = "none" # Fallback dummy value to avoid startup validation error
+
         self._client = AsyncOpenAI(
-            api_key=api_key or settings.GROQ_API_KEY,
+            api_key=api_key_val,
             base_url=base_url or settings.GROQ_BASE_URL,
             timeout=timeout or settings.GROQ_REQUEST_TIMEOUT_SECONDS,
         )
