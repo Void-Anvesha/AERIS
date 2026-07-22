@@ -14,8 +14,8 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: aeris-backend
     environment:
       DATABASE_URL: postgresql://aeris_user:aeris_password@postgres:5432/aeris_db
